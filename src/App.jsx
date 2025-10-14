@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -160,6 +161,9 @@ function App() {
             </div>
           </div>
         </footer>
+        
+        {/* Botão de scroll para o topo */}
+        <ScrollToTop />
       </div>
     </AuthProvider>
   );
