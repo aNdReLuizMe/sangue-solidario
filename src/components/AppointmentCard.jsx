@@ -41,16 +41,11 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 mb-8">
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-            <i className="fas fa-calendar-alt text-xl text-red-600"></i>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-800">Agendamento de Doação</h3>
-            <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color} mt-1`}>
-              <i className={`fas ${statusInfo.icon} mr-1`}></i>
-              {statusInfo.text}
-            </div>
+        <div>
+          <h3 className="text-lg font-bold text-gray-800">Agendamento de Doação</h3>
+          <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusInfo.color} mt-1`}>
+            <i className={`fas ${statusInfo.icon} mr-1`}></i>
+            {statusInfo.text}
           </div>
         </div>
 
