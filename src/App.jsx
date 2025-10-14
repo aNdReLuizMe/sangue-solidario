@@ -11,26 +11,29 @@ function App() {
 
   // Scroll para o topo sempre que a página mudar
   useEffect(() => {
-    // Usar requestAnimationFrame para garantir que o scroll aconteça após a renderização
-    const scrollToTop = () => {
-      requestAnimationFrame(() => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      });
-    };
-    
-    // Scroll após a renderização
-    scrollToTop();
-    
-    // Fallback com timeout para garantir que funcione
-    setTimeout(() => {
+    // Forçar scroll para o topo de forma mais agressiva
+    const forceScrollToTop = () => {
+      // Scroll instantâneo primeiro
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      
+      // Depois scroll suave
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
       });
-    }, 100);
+    };
+    
+    // Executar imediatamente
+    forceScrollToTop();
+    
+    // Executar após renderização
+    requestAnimationFrame(forceScrollToTop);
+    
+    // Executar após delays para garantir
+    setTimeout(forceScrollToTop, 50);
+    setTimeout(forceScrollToTop, 150);
+    setTimeout(forceScrollToTop, 300);
   }, [currentPage]);
 
   // Função para navegar entre páginas

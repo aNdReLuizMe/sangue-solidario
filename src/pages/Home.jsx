@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import CustomModal from '../components/CustomModal';
+import AppointmentCard from '../components/AppointmentCard';
 
 const Home = ({ onPageChange }) => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState(null);
 
   const handleAgendarClick = () => {
     if (user) {
@@ -19,6 +22,48 @@ const Home = ({ onPageChange }) => {
     // Disparar evento personalizado para abrir o modal de login na Navbar
     window.dispatchEvent(new CustomEvent('openLoginModal'));
   };
+
+  // Funções para gerenciar agendamentos
+  const handleEditAppointment = (appointment) => {
+    // Por enquanto, redireciona para a página de agendamento
+    // TODO: Implementar modal de edição
+    onPageChange('appointment');
+  };
+
+  const handleDeleteAppointment = (appointmentId) => {
+    setAppointmentToDelete(appointmentId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteAppointment = async () => {
+    try {
+      const updatedAppointments = user.appointments.filter(apt => apt.id !== appointmentToDelete);
+      const updatedUser = {
+        ...user,
+        appointments: updatedAppointments
+      };
+      await updateUser(updatedUser);
+      setShowDeleteModal(false);
+      setAppointmentToDelete(null);
+    } catch (error) {
+      console.error('Erro ao excluir agendamento:', error);
+      alert('Erro ao excluir agendamento. Tente novamente.');
+    }
+  };
+
+  // Obter próximo agendamento (mais recente)
+  const getNextAppointment = () => {
+    if (!user?.appointments || user.appointments.length === 0) return null;
+    
+    // Filtrar apenas agendamentos futuros e ordenar por data
+    const futureAppointments = user.appointments
+      .filter(apt => new Date(apt.date) >= new Date())
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    return futureAppointments.length > 0 ? futureAppointments[0] : null;
+  };
+
+  const nextAppointment = getNextAppointment();
 
   return (
     <div className="min-h-screen">
@@ -40,6 +85,23 @@ const Home = ({ onPageChange }) => {
           </button>
         </div>
       </div>
+
+      {/* Próximo Agendamento */}
+      {user && nextAppointment && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              <i className="fas fa-calendar-check text-red-600 mr-2"></i>
+              Seu Próximo Agendamento
+            </h2>
+            <AppointmentCard
+              appointment={nextAppointment}
+              onEdit={handleEditAppointment}
+              onDelete={handleDeleteAppointment}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Stats Section */}
       <div className="container mx-auto px-4 py-12">
@@ -131,7 +193,7 @@ const Home = ({ onPageChange }) => {
         </div>
       </div>
 
-      {/* Custom Modal */}
+      {/* Custom Modals */}
       <CustomModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
@@ -141,6 +203,21 @@ const Home = ({ onPageChange }) => {
         type="warning"
         showCancel={true}
         confirmText="Ir para Login"
+        cancelText="Cancelar"
+      />
+
+      <CustomModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setAppointmentToDelete(null);
+        }}
+        onConfirm={confirmDeleteAppointment}
+        title="Excluir Agendamento"
+        message="Tem certeza que deseja excluir este agendamento? Esta ação não pode ser desfeita."
+        type="error"
+        showCancel={true}
+        confirmText="Excluir"
         cancelText="Cancelar"
       />
     </div>
