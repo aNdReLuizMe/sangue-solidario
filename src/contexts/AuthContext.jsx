@@ -86,6 +86,7 @@ export const AuthProvider = ({ children }) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         try {
+          console.log('Atualizando usuário:', userData);
           const users = JSON.parse(localStorage.getItem('sangueVoluntario_users') || '[]');
           const userIndex = users.findIndex(u => u.id === user.id);
           
@@ -94,6 +95,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('sangueVoluntario_users', JSON.stringify(users));
             
             const { password, ...userWithoutPassword } = users[userIndex];
+            console.log('Usuário atualizado:', userWithoutPassword);
             setUser(userWithoutPassword);
             localStorage.setItem('sangueVoluntario_user', JSON.stringify(userWithoutPassword));
             resolve(userWithoutPassword);
@@ -101,6 +103,7 @@ export const AuthProvider = ({ children }) => {
             reject(new Error('Usuário não encontrado'));
           }
         } catch (error) {
+          console.error('Erro ao atualizar usuário:', error);
           reject(error);
         }
       }, 500);

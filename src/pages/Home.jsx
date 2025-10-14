@@ -37,33 +37,51 @@ const Home = ({ onPageChange }) => {
 
   const confirmDeleteAppointment = async () => {
     try {
+      console.log('Excluindo agendamento:', appointmentToDelete);
+      console.log('Agendamentos atuais:', user.appointments);
+      
       const updatedAppointments = user.appointments.filter(apt => apt.id !== appointmentToDelete);
+      console.log('Agendamentos após exclusão:', updatedAppointments);
+      
       const updatedUser = {
         ...user,
         appointments: updatedAppointments
       };
+      
       await updateUser(updatedUser);
       setShowDeleteModal(false);
       setAppointmentToDelete(null);
+      
+      console.log('Agendamento excluído com sucesso');
     } catch (error) {
       console.error('Erro ao excluir agendamento:', error);
       alert('Erro ao excluir agendamento. Tente novamente.');
     }
   };
 
-  // Obter próximo agendamento (mais recente)
-  const getNextAppointment = () => {
+  // Obter agendamento ativo (apenas 1 por usuário)
+  const getActiveAppointment = () => {
     if (!user?.appointments || user.appointments.length === 0) return null;
     
-    // Filtrar apenas agendamentos futuros e ordenar por data
-    const futureAppointments = user.appointments
-      .filter(apt => new Date(apt.date) >= new Date())
+    // Filtrar apenas agendamentos ativos (não cancelados) e futuros
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Zerar horas para comparação apenas de data
+    
+    const activeAppointments = user.appointments
+      .filter(apt => {
+        const appointmentDate = new Date(apt.date);
+        appointmentDate.setHours(0, 0, 0, 0);
+        
+        return apt.status !== 'cancelado' && 
+               apt.status !== 'realizado' &&
+               appointmentDate >= today;
+      })
       .sort((a, b) => new Date(a.date) - new Date(b.date));
     
-    return futureAppointments.length > 0 ? futureAppointments[0] : null;
+    return activeAppointments.length > 0 ? activeAppointments[0] : null;
   };
 
-  const nextAppointment = getNextAppointment();
+  const activeAppointment = getActiveAppointment();
 
   return (
     <div className="min-h-screen">
@@ -76,26 +94,28 @@ const Home = ({ onPageChange }) => {
           <p className="text-xl md:text-2xl mb-8 text-red-100">
             Uma doação pode salvar até 4 vidas. Agende sua doação de forma rápida e fácil.
           </p>
-          <button
-            onClick={handleAgendarClick}
-            className="px-8 py-4 bg-white text-red-700 rounded-lg text-lg font-semibold hover:bg-red-50 transition transform hover:scale-105"
-          >
-            <i className="fas fa-calendar-plus mr-2"></i>
-            Agendar Doação
-          </button>
+          {(!user || !activeAppointment) && (
+            <button
+              onClick={handleAgendarClick}
+              className="px-8 py-4 bg-white text-red-700 rounded-lg text-lg font-semibold hover:bg-red-50 transition transform hover:scale-105"
+            >
+              <i className="fas fa-calendar-plus mr-2"></i>
+              {user ? 'Agendar Doação' : 'Faça Login para Agendar'}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Próximo Agendamento */}
-      {user && nextAppointment && (
+      {/* Agendamento Ativo */}
+      {user && activeAppointment && (
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
               <i className="fas fa-calendar-check text-red-600 mr-2"></i>
-              Seu Próximo Agendamento
+              Seu Agendamento Ativo
             </h2>
             <AppointmentCard
-              appointment={nextAppointment}
+              appointment={activeAppointment}
               onEdit={handleEditAppointment}
               onDelete={handleDeleteAppointment}
             />

@@ -6,7 +6,7 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
     const date = new Date(dateString);
     const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
     const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-    
+
     return {
       weekDay: weekDays[date.getDay()],
       day: date.getDate(),
@@ -53,7 +53,7 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="flex space-x-2">
           <button
             onClick={() => onEdit(appointment)}
@@ -63,7 +63,10 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
             <i className="fas fa-edit"></i>
           </button>
           <button
-            onClick={() => onDelete(appointment.id)}
+            onClick={() => {
+              console.log('Clicou para excluir agendamento:', appointment.id);
+              onDelete(appointment.id);
+            }}
             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             title="Excluir agendamento"
           >
@@ -114,20 +117,48 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
       {/* Notificações */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <div className="flex items-center">
-              <i className={`fas fa-sms text-sm mr-1 ${appointment.phoneNotifications ? 'text-green-600' : 'text-gray-400'}`}></i>
-              <span className={`text-xs font-medium ${appointment.phoneNotifications ? 'text-green-600' : 'text-gray-500'}`}>
-                SMS
-              </span>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 transition-colors ${appointment.phoneNotifications
+                ? 'bg-green-100 border-2 border-green-300'
+                : 'bg-gray-100 border-2 border-gray-300'
+                }`}>
+                <i className={`fas fa-sms text-sm ${appointment.phoneNotifications ? 'text-green-600' : 'text-gray-400'
+                  }`}></i>
+              </div>
+              <div className="flex flex-col">
+                <span className={`text-xs font-medium ${appointment.phoneNotifications ? 'text-green-600' : 'text-gray-500'
+                  }`}>
+                  SMS
+                </span>
+                <span className={`text-xs ${appointment.phoneNotifications ? 'text-green-500' : 'text-gray-400'
+                  }`}>
+                  {appointment.phoneNotifications ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
             </div>
+
             <div className="flex items-center">
-              <i className={`fas fa-envelope text-sm mr-1 ${appointment.emailNotifications ? 'text-green-600' : 'text-gray-400'}`}></i>
-              <span className={`text-xs font-medium ${appointment.emailNotifications ? 'text-green-600' : 'text-gray-500'}`}>
-                Email
-              </span>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 transition-colors ${appointment.emailNotifications
+                ? 'bg-green-100 border-2 border-green-300'
+                : 'bg-gray-100 border-2 border-gray-300'
+                }`}>
+                <i className={`fas fa-envelope text-sm ${appointment.emailNotifications ? 'text-green-600' : 'text-gray-400'
+                  }`}></i>
+              </div>
+              <div className="flex flex-col">
+                <span className={`text-xs font-medium ${appointment.emailNotifications ? 'text-green-600' : 'text-gray-500'
+                  }`}>
+                  Email
+                </span>
+                <span className={`text-xs ${appointment.emailNotifications ? 'text-green-500' : 'text-gray-400'
+                  }`}>
+                  {appointment.emailNotifications ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
             </div>
           </div>
+
           <div className="text-xs text-gray-500">
             Agendado em {new Date(appointment.createdAt).toLocaleDateString('pt-BR')}
           </div>

@@ -86,6 +86,23 @@ const Appointment = ({ onPageChange }) => {
         throw new Error('Por favor, selecione uma data e horário');
       }
 
+      // Verificar se já existe um agendamento ativo
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const activeAppointments = (user.appointments || []).filter(apt => {
+        const appointmentDate = new Date(apt.date);
+        appointmentDate.setHours(0, 0, 0, 0);
+        
+        return apt.status !== 'cancelado' && 
+               apt.status !== 'realizado' &&
+               appointmentDate >= today;
+      });
+
+      if (activeAppointments.length > 0) {
+        throw new Error('Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.');
+      }
+
       const appointment = {
         id: Date.now().toString(),
         date: formData.date,
@@ -96,6 +113,8 @@ const Appointment = ({ onPageChange }) => {
         status: 'agendado',
         createdAt: new Date().toISOString()
       };
+
+      console.log('Dados do agendamento:', appointment);
 
       // Atualizar usuário com novo agendamento
       const updatedUser = {
@@ -149,6 +168,39 @@ const Appointment = ({ onPageChange }) => {
     );
   }
 
+  // Verificar se já existe um agendamento ativo
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const activeAppointments = (user.appointments || []).filter(apt => {
+    const appointmentDate = new Date(apt.date);
+    appointmentDate.setHours(0, 0, 0, 0);
+    
+    return apt.status !== 'cancelado' && 
+           apt.status !== 'realizado' &&
+           appointmentDate >= today;
+  });
+
+  if (activeAppointments.length > 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center py-12 px-4">
+        <div className="text-center">
+          <i className="fas fa-calendar-check text-6xl text-blue-400 mb-4"></i>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Agendamento Ativo</h2>
+          <p className="text-gray-600 mb-6">
+            Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.
+          </p>
+          <button
+            onClick={() => onPageChange('home')}
+            className="btn-primary"
+          >
+            Voltar para Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-12 px-4">
       <div className="container mx-auto max-w-4xl">
@@ -166,9 +218,18 @@ const Appointment = ({ onPageChange }) => {
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
-              <i className="fas fa-check-circle mr-2"></i>
-              {success}
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i className="fas fa-check-circle text-5xl text-green-600"></i>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Agendamento Confirmado!</h3>
+                <p className="text-gray-600 mb-6">{success}</p>
+                <div className="flex items-center justify-center text-gray-500">
+                  <i className="fas fa-spinner fa-spin mr-2"></i>
+                  <span>Redirecionando para a página inicial...</span>
+                </div>
+              </div>
             </div>
           )}
 
@@ -270,10 +331,10 @@ const Appointment = ({ onPageChange }) => {
                   name="phoneNotifications"
                   checked={formData.phoneNotifications}
                   onChange={handleChange}
-                  className="mr-3"
+                  className="mr-3 w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
                 />
-                <label htmlFor="phoneNotifications" className="text-gray-700">
-                  Permite enviar notificações para seu celular?
+                <label htmlFor="phoneNotifications" className="text-gray-700 cursor-pointer">
+                  Permite enviar notificações para seu celular (SMS)?
                 </label>
               </div>
 
@@ -284,12 +345,14 @@ const Appointment = ({ onPageChange }) => {
                   name="emailNotifications"
                   checked={formData.emailNotifications}
                   onChange={handleChange}
-                  className="mr-3"
+                  className="mr-3 w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
                 />
-                <label htmlFor="emailNotifications" className="text-gray-700">
+                <label htmlFor="emailNotifications" className="text-gray-700 cursor-pointer">
                   Permite enviar notificações para seu email?
                 </label>
               </div>
+
+
             </div>
 
             <button
