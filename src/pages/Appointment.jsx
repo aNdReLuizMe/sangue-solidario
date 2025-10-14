@@ -16,6 +16,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [countdown, setCountdown] = useState(2);
 
   // Carregar dados do agendamento para edição
   useEffect(() => {
@@ -50,7 +51,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
     for (let i = 0; i < 42; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
-      
+
       const isCurrentMonth = date.getMonth() === month;
       const isPast = date < today;
       const isFuture = date > maxDate;
@@ -105,17 +106,17 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
 
       if (isEditMode) {
         // Modo edição - atualizar agendamento existente
-        const updatedAppointments = user.appointments.map(apt => 
-          apt.id === editingAppointment.id 
+        const updatedAppointments = user.appointments.map(apt =>
+          apt.id === editingAppointment.id
             ? {
-                ...apt,
-                date: formData.date,
-                time: formData.time,
-                location: formData.location,
-                phoneNotifications: formData.phoneNotifications,
-                emailNotifications: formData.emailNotifications,
-                updatedAt: new Date().toISOString()
-              }
+              ...apt,
+              date: formData.date,
+              time: formData.time,
+              location: formData.location,
+              phoneNotifications: formData.phoneNotifications,
+              emailNotifications: formData.emailNotifications,
+              updatedAt: new Date().toISOString()
+            }
             : apt
         );
 
@@ -127,23 +128,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
         await updateUser(updatedUser);
         setSuccess('Agendamento atualizado com sucesso!');
       } else {
-        // Modo criação - verificar se já existe um agendamento ativo
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const activeAppointments = (user.appointments || []).filter(apt => {
-          const appointmentDate = new Date(apt.date);
-          appointmentDate.setHours(0, 0, 0, 0);
-          
-          return apt.status !== 'cancelado' && 
-                 apt.status !== 'realizado' &&
-                 appointmentDate >= today;
-        });
-
-        if (activeAppointments.length > 0) {
-          throw new Error('Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.');
-        }
-
+        // Modo criação - criar novo agendamento
         const appointment = {
           id: Date.now().toString(),
           date: formData.date,
@@ -164,12 +149,21 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
         };
 
         await updateUser(updatedUser);
-        setSuccess('Agendamento realizado com sucesso!');
+        setSuccess('Agendamento criado com sucesso!');
       }
-      
-      setTimeout(() => {
-        onPageChange('home');
-      }, 2000);
+
+      // Iniciar countdown
+      setCountdown(2);
+      const countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            onPageChange('home');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -210,40 +204,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
     );
   }
 
-  // Verificar se já existe um agendamento ativo (apenas se não estiver editando)
-  if (!isEditMode) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const activeAppointments = (user.appointments || []).filter(apt => {
-      const appointmentDate = new Date(apt.date);
-      appointmentDate.setHours(0, 0, 0, 0);
-      
-      return apt.status !== 'cancelado' && 
-             apt.status !== 'realizado' &&
-             appointmentDate >= today;
-    });
 
-    if (activeAppointments.length > 0) {
-      return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4">
-          <div className="text-center">
-            <i className="fas fa-calendar-check text-6xl text-blue-400 mb-4"></i>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Agendamento Ativo</h2>
-            <p className="text-gray-600 mb-6">
-              Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.
-            </p>
-            <button
-              onClick={() => onPageChange('home')}
-              className="btn-primary"
-            >
-              Voltar para Home
-            </button>
-          </div>
-        </div>
-      );
-    }
-  }
 
   return (
     <div className="min-h-screen py-12 px-4">
@@ -260,12 +221,12 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
               </div>
             </div>
           )}
-          
+
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
             {isEditMode ? 'Editar Agendamento' : 'Agendar Doação'}
           </h2>
           <p className="text-gray-600 mb-8">
-            {isEditMode 
+            {isEditMode
               ? 'Altere os dados do seu agendamento conforme necessário.'
               : 'Escolha uma data, horário e local para sua doação de sangue.'
             }
@@ -279,19 +240,23 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
           )}
 
           {success && (
-            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn">
+              <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform animate-scaleIn">
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
                   <i className="fas fa-check-circle text-6xl text-green-600"></i>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">
-                  {isEditMode ? 'Agendamento Atualizado!' : 'Agendamento Confirmado!'}
+                  {isEditMode ? 'Agendamento Atualizado!' : 'Agendamento Realizado!'}
                 </h3>
-                <p className="text-gray-600 mb-6 text-lg">{success}</p>
-                
+                <p className="text-gray-600 mb-6 text-lg">
+                  {isEditMode ? 'Agendamento editado com sucesso!' : 'Agendamento criado com sucesso!'}
+                </p>
+
                 {/* Resumo do agendamento */}
                 <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-                  <h4 className="font-semibold text-gray-800 mb-3 text-center">Resumo do Agendamento</h4>
+                  <h4 className="font-semibold text-gray-800 mb-3 text-center">
+                    {isEditMode ? 'Alterações Salvas' : 'Programação Feita'}
+                  </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Data:</span>
@@ -304,35 +269,46 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Local:</span>
                       <span className="font-medium">
-                        {formData.location === 'hemocentro' ? 'Hemocentro Regional' : 'Campus UFMS'}
+                        {formData.location === 'hemocentro' ? 'Hemocentro Regional de Três Lagoas' : 'Campus UFMS'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">SMS:</span>
+                      <span className={`font-medium ${formData.phoneNotifications ? 'text-green-600' : 'text-gray-500'}`}>
+                        {formData.phoneNotifications ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Email:</span>
+                      <span className={`font-medium ${formData.emailNotifications ? 'text-green-600' : 'text-gray-500'}`}>
+                        {formData.emailNotifications ? 'Ativo' : 'Inativo'}
                       </span>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Barra de progresso */}
                 <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                  <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
+                  <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
                 </div>
-                
+
                 <div className="flex items-center justify-center text-gray-500 mb-4">
                   <div className="flex space-x-1 mr-3">
                     <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
-                  <span className="text-sm">Redirecionando para a página inicial...</span>
+                  <span className="text-sm">
+                    Redirecionando em {countdown} segundo{countdown !== 1 ? 's' : ''}...
+                  </span>
                 </div>
-                
+
                 {/* Informações adicionais */}
                 <div className="p-4 bg-green-50 rounded-lg">
                   <div className="flex items-center justify-center text-green-700 text-sm">
-                    <i className="fas fa-info-circle mr-2"></i>
+                    <i className="fas fa-save mr-2"></i>
                     <span>
-                      {isEditMode 
-                        ? 'Suas alterações foram salvas com sucesso!'
-                        : 'Você receberá uma confirmação por email/SMS!'
-                      }
+                      {isEditMode ? 'Suas alterações foram salvas com sucesso!' : 'Seu agendamento foi criado com sucesso!'}
                     </span>
                   </div>
                 </div>
@@ -391,15 +367,14 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                       type="button"
                       onClick={() => handleDateSelect(day)}
                       disabled={day.isDisabled}
-                      className={`py-2 rounded transition-colors ${
-                        day.isDisabled
+                      className={`py-2 rounded transition-colors ${day.isDisabled
                           ? 'text-gray-300 cursor-not-allowed'
                           : day.isSelected
-                          ? 'bg-red-600 text-white'
-                          : day.isCurrentMonth
-                          ? 'text-gray-700 hover:bg-red-100'
-                          : 'text-gray-400'
-                      }`}
+                            ? 'bg-red-600 text-white'
+                            : day.isCurrentMonth
+                              ? 'text-gray-700 hover:bg-red-100'
+                              : 'text-gray-400'
+                        }`}
                     >
                       {day.date.getDate()}
                     </button>
@@ -416,11 +391,10 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                     key={time}
                     type="button"
                     onClick={() => handleTimeSelect(time)}
-                    className={`py-2 px-4 rounded-lg border transition-colors ${
-                      formData.time === time
+                    className={`py-2 px-4 rounded-lg border transition-colors ${formData.time === time
                         ? 'bg-red-600 text-white border-red-600'
                         : 'border-gray-300 text-gray-700 hover:border-red-500'
-                    }`}
+                      }`}
                   >
                     {time}
                   </button>
@@ -430,7 +404,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-800">Preferências de Notificação</h3>
-              
+
               <div className="flex items-center">
                 <input
                   type="checkbox"
