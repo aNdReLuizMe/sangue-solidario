@@ -68,14 +68,22 @@ const Home = ({ onPageChange }) => {
     
     const activeAppointments = user.appointments
       .filter(apt => {
-        const appointmentDate = new Date(apt.date);
+        // Criar data local para evitar problemas de fuso horário
+        const [year, month, day] = apt.date.split('-');
+        const appointmentDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
         appointmentDate.setHours(0, 0, 0, 0);
         
         return apt.status !== 'cancelado' && 
                apt.status !== 'realizado' &&
                appointmentDate >= today;
       })
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+      .sort((a, b) => {
+        const [yearA, monthA, dayA] = a.date.split('-');
+        const [yearB, monthB, dayB] = b.date.split('-');
+        const dateA = new Date(parseInt(yearA), parseInt(monthA) - 1, parseInt(dayA));
+        const dateB = new Date(parseInt(yearB), parseInt(monthB) - 1, parseInt(dayB));
+        return dateA - dateB;
+      });
     
     return activeAppointments.length > 0 ? activeAppointments[0] : null;
   };

@@ -22,7 +22,10 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
   useEffect(() => {
     if (editingAppointment) {
       setIsEditMode(true);
-      const appointmentDate = new Date(editingAppointment.date);
+      // Criar data local para evitar problemas de fuso horário
+      const [year, month, day] = editingAppointment.date.split('-');
+      const appointmentDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
       setFormData({
         location: editingAppointment.location,
         date: editingAppointment.date,
@@ -79,9 +82,15 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
   const handleDateSelect = (date) => {
     if (!date.isDisabled) {
       setSelectedDate(date.date);
+      // Formatar data mantendo o fuso horário local
+      const year = date.date.getFullYear();
+      const month = String(date.date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.date.getDate()).padStart(2, '0');
+      const localDateString = `${year}-${month}-${day}`;
+
       setFormData({
         ...formData,
-        date: date.date.toISOString().split('T')[0]
+        date: localDateString
       });
     }
   };
@@ -368,12 +377,12 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                       onClick={() => handleDateSelect(day)}
                       disabled={day.isDisabled}
                       className={`py-2 rounded transition-colors ${day.isDisabled
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : day.isSelected
-                            ? 'bg-red-600 text-white'
-                            : day.isCurrentMonth
-                              ? 'text-gray-700 hover:bg-red-100'
-                              : 'text-gray-400'
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : day.isSelected
+                          ? 'bg-red-600 text-white'
+                          : day.isCurrentMonth
+                            ? 'text-gray-700 hover:bg-red-100'
+                            : 'text-gray-400'
                         }`}
                     >
                       {day.date.getDate()}
@@ -392,8 +401,8 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                     type="button"
                     onClick={() => handleTimeSelect(time)}
                     className={`py-2 px-4 rounded-lg border transition-colors ${formData.time === time
-                        ? 'bg-red-600 text-white border-red-600'
-                        : 'border-gray-300 text-gray-700 hover:border-red-500'
+                      ? 'bg-red-600 text-white border-red-600'
+                      : 'border-gray-300 text-gray-700 hover:border-red-500'
                       }`}
                   >
                     {time}

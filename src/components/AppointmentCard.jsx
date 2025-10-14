@@ -3,7 +3,10 @@ import React from 'react';
 const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
   // Formatar data para exibição
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    // Criar data local para evitar problemas de fuso horário
+    const [year, month, day] = dateString.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
     const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
     const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
