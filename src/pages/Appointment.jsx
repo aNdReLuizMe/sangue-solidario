@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-const Appointment = ({ onPageChange }) => {
+const Appointment = ({ onPageChange, editingAppointment = null }) => {
   const { user, updateUser } = useAuth();
   const [formData, setFormData] = useState({
     location: '',
@@ -15,13 +15,30 @@ const Appointment = ({ onPageChange }) => {
   const [success, setSuccess] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  // Carregar dados do agendamento para edição
+  useEffect(() => {
+    if (editingAppointment) {
+      setIsEditMode(true);
+      const appointmentDate = new Date(editingAppointment.date);
+      setFormData({
+        location: editingAppointment.location,
+        date: editingAppointment.date,
+        time: editingAppointment.time,
+        phoneNotifications: editingAppointment.phoneNotifications,
+        emailNotifications: editingAppointment.emailNotifications
+      });
+      setSelectedDate(appointmentDate);
+      setCurrentDate(new Date(appointmentDate.getFullYear(), appointmentDate.getMonth()));
+    }
+  }, [editingAppointment]);
 
   // Gerar dias do calendário
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
 
@@ -86,44 +103,69 @@ const Appointment = ({ onPageChange }) => {
         throw new Error('Por favor, selecione uma data e horário');
       }
 
-      // Verificar se já existe um agendamento ativo
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const activeAppointments = (user.appointments || []).filter(apt => {
-        const appointmentDate = new Date(apt.date);
-        appointmentDate.setHours(0, 0, 0, 0);
+      if (isEditMode) {
+        // Modo edição - atualizar agendamento existente
+        const updatedAppointments = user.appointments.map(apt => 
+          apt.id === editingAppointment.id 
+            ? {
+                ...apt,
+                date: formData.date,
+                time: formData.time,
+                location: formData.location,
+                phoneNotifications: formData.phoneNotifications,
+                emailNotifications: formData.emailNotifications,
+                updatedAt: new Date().toISOString()
+              }
+            : apt
+        );
+
+        const updatedUser = {
+          ...user,
+          appointments: updatedAppointments
+        };
+
+        await updateUser(updatedUser);
+        setSuccess('Agendamento atualizado com sucesso!');
+      } else {
+        // Modo criação - verificar se já existe um agendamento ativo
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
         
-        return apt.status !== 'cancelado' && 
-               apt.status !== 'realizado' &&
-               appointmentDate >= today;
-      });
+        const activeAppointments = (user.appointments || []).filter(apt => {
+          const appointmentDate = new Date(apt.date);
+          appointmentDate.setHours(0, 0, 0, 0);
+          
+          return apt.status !== 'cancelado' && 
+                 apt.status !== 'realizado' &&
+                 appointmentDate >= today;
+        });
 
-      if (activeAppointments.length > 0) {
-        throw new Error('Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.');
+        if (activeAppointments.length > 0) {
+          throw new Error('Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.');
+        }
+
+        const appointment = {
+          id: Date.now().toString(),
+          date: formData.date,
+          time: formData.time,
+          location: formData.location,
+          phoneNotifications: formData.phoneNotifications,
+          emailNotifications: formData.emailNotifications,
+          status: 'agendado',
+          createdAt: new Date().toISOString()
+        };
+
+        console.log('Dados do agendamento:', appointment);
+
+        // Atualizar usuário com novo agendamento
+        const updatedUser = {
+          ...user,
+          appointments: [...(user.appointments || []), appointment]
+        };
+
+        await updateUser(updatedUser);
+        setSuccess('Agendamento realizado com sucesso!');
       }
-
-      const appointment = {
-        id: Date.now().toString(),
-        date: formData.date,
-        time: formData.time,
-        location: formData.location,
-        phoneNotifications: formData.phoneNotifications,
-        emailNotifications: formData.emailNotifications,
-        status: 'agendado',
-        createdAt: new Date().toISOString()
-      };
-
-      console.log('Dados do agendamento:', appointment);
-
-      // Atualizar usuário com novo agendamento
-      const updatedUser = {
-        ...user,
-        appointments: [...(user.appointments || []), appointment]
-      };
-
-      await updateUser(updatedUser);
-      setSuccess('Agendamento realizado com sucesso!');
       
       setTimeout(() => {
         onPageChange('home');
@@ -168,46 +210,65 @@ const Appointment = ({ onPageChange }) => {
     );
   }
 
-  // Verificar se já existe um agendamento ativo
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  
-  const activeAppointments = (user.appointments || []).filter(apt => {
-    const appointmentDate = new Date(apt.date);
-    appointmentDate.setHours(0, 0, 0, 0);
+  // Verificar se já existe um agendamento ativo (apenas se não estiver editando)
+  if (!isEditMode) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
-    return apt.status !== 'cancelado' && 
-           apt.status !== 'realizado' &&
-           appointmentDate >= today;
-  });
+    const activeAppointments = (user.appointments || []).filter(apt => {
+      const appointmentDate = new Date(apt.date);
+      appointmentDate.setHours(0, 0, 0, 0);
+      
+      return apt.status !== 'cancelado' && 
+             apt.status !== 'realizado' &&
+             appointmentDate >= today;
+    });
 
-  if (activeAppointments.length > 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4">
-        <div className="text-center">
-          <i className="fas fa-calendar-check text-6xl text-blue-400 mb-4"></i>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Agendamento Ativo</h2>
-          <p className="text-gray-600 mb-6">
-            Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.
-          </p>
-          <button
-            onClick={() => onPageChange('home')}
-            className="btn-primary"
-          >
-            Voltar para Home
-          </button>
+    if (activeAppointments.length > 0) {
+      return (
+        <div className="min-h-screen flex items-center justify-center py-12 px-4">
+          <div className="text-center">
+            <i className="fas fa-calendar-check text-6xl text-blue-400 mb-4"></i>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Agendamento Ativo</h2>
+            <p className="text-gray-600 mb-6">
+              Você já possui um agendamento ativo. Cancele o agendamento atual para criar um novo.
+            </p>
+            <button
+              onClick={() => onPageChange('home')}
+              className="btn-primary"
+            >
+              Voltar para Home
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   return (
     <div className="min-h-screen py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="bg-white rounded-xl shadow-2xl p-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Agendar Doação</h2>
+          {isEditMode && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center">
+                <i className="fas fa-edit text-blue-600 text-xl mr-3"></i>
+                <div>
+                  <h4 className="font-semibold text-blue-800">Modo de Edição</h4>
+                  <p className="text-blue-600 text-sm">Você está editando um agendamento existente</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            {isEditMode ? 'Editar Agendamento' : 'Agendar Doação'}
+          </h2>
           <p className="text-gray-600 mb-8">
-            Escolha uma data, horário e local para sua doação de sangue.
+            {isEditMode 
+              ? 'Altere os dados do seu agendamento conforme necessário.'
+              : 'Escolha uma data, horário e local para sua doação de sangue.'
+            }
           </p>
 
           {error && (
@@ -218,16 +279,62 @@ const Appointment = ({ onPageChange }) => {
           )}
 
           {success && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
               <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i className="fas fa-check-circle text-5xl text-green-600"></i>
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                  <i className="fas fa-check-circle text-6xl text-green-600"></i>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Agendamento Confirmado!</h3>
-                <p className="text-gray-600 mb-6">{success}</p>
-                <div className="flex items-center justify-center text-gray-500">
-                  <i className="fas fa-spinner fa-spin mr-2"></i>
-                  <span>Redirecionando para a página inicial...</span>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                  {isEditMode ? 'Agendamento Atualizado!' : 'Agendamento Confirmado!'}
+                </h3>
+                <p className="text-gray-600 mb-6 text-lg">{success}</p>
+                
+                {/* Resumo do agendamento */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                  <h4 className="font-semibold text-gray-800 mb-3 text-center">Resumo do Agendamento</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Data:</span>
+                      <span className="font-medium">{selectedDate?.toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Horário:</span>
+                      <span className="font-medium">{formData.time}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Local:</span>
+                      <span className="font-medium">
+                        {formData.location === 'hemocentro' ? 'Hemocentro Regional' : 'Campus UFMS'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Barra de progresso */}
+                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                  <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
+                </div>
+                
+                <div className="flex items-center justify-center text-gray-500 mb-4">
+                  <div className="flex space-x-1 mr-3">
+                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                  <span className="text-sm">Redirecionando para a página inicial...</span>
+                </div>
+                
+                {/* Informações adicionais */}
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <div className="flex items-center justify-center text-green-700 text-sm">
+                    <i className="fas fa-info-circle mr-2"></i>
+                    <span>
+                      {isEditMode 
+                        ? 'Suas alterações foram salvas com sucesso!'
+                        : 'Você receberá uma confirmação por email/SMS!'
+                      }
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -355,23 +462,35 @@ const Appointment = ({ onPageChange }) => {
 
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full btn-primary py-4 text-lg"
-            >
-              {isLoading ? (
-                <>
-                  <i className="fas fa-spinner fa-spin mr-2"></i>
-                  Agendando...
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-check-circle mr-2"></i>
-                  Confirmar Agendamento
-                </>
+            <div className="flex gap-4">
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => onPageChange('home')}
+                  className="flex-1 bg-gray-500 text-white py-4 px-6 rounded-lg text-lg font-semibold hover:bg-gray-600 transition"
+                >
+                  <i className="fas fa-times mr-2"></i>
+                  Cancelar
+                </button>
               )}
-            </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`${isEditMode ? 'flex-1' : 'w-full'} btn-primary py-4 text-lg`}
+              >
+                {isLoading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>
+                    {isEditMode ? 'Salvando...' : 'Agendando...'}
+                  </>
+                ) : (
+                  <>
+                    <i className={`fas ${isEditMode ? 'fa-save' : 'fa-check-circle'} mr-2`}></i>
+                    {isEditMode ? 'Salvar Alterações' : 'Confirmar Agendamento'}
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

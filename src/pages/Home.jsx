@@ -25,9 +25,8 @@ const Home = ({ onPageChange }) => {
 
   // Funções para gerenciar agendamentos
   const handleEditAppointment = (appointment) => {
-    // Por enquanto, redireciona para a página de agendamento
-    // TODO: Implementar modal de edição
-    onPageChange('appointment');
+    console.log('Editando agendamento:', appointment);
+    onPageChange('appointment', appointment);
   };
 
   const handleDeleteAppointment = (appointmentId) => {

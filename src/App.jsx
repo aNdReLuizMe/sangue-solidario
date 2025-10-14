@@ -8,6 +8,7 @@ import Appointment from './pages/Appointment';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
+  const [editingAppointment, setEditingAppointment] = useState(null);
 
   // Scroll para o topo sempre que a página mudar
   useEffect(() => {
@@ -37,8 +38,13 @@ function App() {
   }, [currentPage]);
 
   // Função para navegar entre páginas
-  const handlePageChange = (page) => {
+  const handlePageChange = (page, appointmentData = null) => {
     setCurrentPage(page);
+    if (page === 'appointment' && appointmentData) {
+      setEditingAppointment(appointmentData);
+    } else {
+      setEditingAppointment(null);
+    }
   };
 
   const renderPage = () => {
@@ -50,7 +56,7 @@ function App() {
       case 'contact':
         return <Contact />;
       case 'appointment':
-        return <Appointment onPageChange={handlePageChange} />;
+        return <Appointment onPageChange={handlePageChange} editingAppointment={editingAppointment} />;
       default:
         return <Home onPageChange={handlePageChange} />;
     }
