@@ -18,11 +18,9 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [countdown, setCountdown] = useState(2);
 
-  // Carregar dados do agendamento para edição
   useEffect(() => {
     if (editingAppointment) {
       setIsEditMode(true);
-      // Criar data local para evitar problemas de fuso horário
       const [year, month, day] = editingAppointment.date.split('-');
       const appointmentDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
 
@@ -37,8 +35,6 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
       setCurrentDate(new Date(appointmentDate.getFullYear(), appointmentDate.getMonth()));
     }
   }, [editingAppointment]);
-
-  // Gerar dias do calendário
   const generateCalendarDays = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -58,7 +54,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
       const isCurrentMonth = date.getMonth() === month;
       const isPast = date < today;
       const isFuture = date > maxDate;
-      const isDisabled = isPast || isFuture || date.getDay() === 0; // Desabilitar domingos
+      const isDisabled = isPast || isFuture || date.getDay() === 0;
 
       days.push({
         date,
@@ -71,7 +67,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
     return days;
   };
 
-  // Gerar horários disponíveis
+
   const generateTimeSlots = () => {
     return [
       '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
@@ -82,7 +78,6 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
   const handleDateSelect = (date) => {
     if (!date.isDisabled) {
       setSelectedDate(date.date);
-      // Formatar data mantendo o fuso horário local
       const year = date.date.getFullYear();
       const month = String(date.date.getMonth() + 1).padStart(2, '0');
       const day = String(date.date.getDate()).padStart(2, '0');
@@ -114,7 +109,6 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
       }
 
       if (isEditMode) {
-        // Modo edição - atualizar agendamento existente
         const updatedAppointments = user.appointments.map(apt =>
           apt.id === editingAppointment.id
             ? {
@@ -137,7 +131,6 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
         await updateUser(updatedUser);
         setSuccess('Agendamento atualizado com sucesso!');
       } else {
-        // Modo criação - criar novo agendamento
         const appointment = {
           id: Date.now().toString(),
           date: formData.date,
@@ -150,8 +143,6 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
         };
 
         console.log('Dados do agendamento:', appointment);
-
-        // Atualizar usuário com novo agendamento
         const updatedUser = {
           ...user,
           appointments: [...(user.appointments || []), appointment]
@@ -161,7 +152,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
         setSuccess('Agendamento criado com sucesso!');
       }
 
-      // Iniciar countdown
+
       setCountdown(2);
       const countdownInterval = setInterval(() => {
         setCountdown(prev => {
@@ -261,7 +252,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                   {isEditMode ? 'Agendamento editado com sucesso!' : 'Agendamento criado com sucesso!'}
                 </p>
 
-                {/* Resumo do agendamento */}
+
                 <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
                   <h4 className="font-semibold text-gray-800 mb-3 text-center">
                     {isEditMode ? 'Alterações Salvas' : 'Programação Feita'}
@@ -296,7 +287,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                   </div>
                 </div>
 
-                {/* Barra de progresso */}
+
                 <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
                   <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
                 </div>
@@ -312,7 +303,7 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
                   </span>
                 </div>
 
-                {/* Informações adicionais */}
+
                 <div className="p-4 bg-green-50 rounded-lg">
                   <div className="flex items-center justify-center text-green-700 text-sm">
                     <i className="fas fa-save mr-2"></i>

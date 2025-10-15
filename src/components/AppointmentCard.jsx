@@ -1,9 +1,7 @@
 import React from 'react';
 
 const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
-  // Formatar data para exibição
   const formatDate = (dateString) => {
-    // Criar data local para evitar problemas de fuso horário
     const [year, month, day] = dateString.split('-');
     const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     
@@ -18,7 +16,6 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
     };
   };
 
-  // Formatar local
   const formatLocation = (location) => {
     const locations = {
       'hemocentro': 'Hemocentro Regional de Três Lagoas',
@@ -26,8 +23,6 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
     };
     return locations[location] || location;
   };
-
-  // Formatar status
   const getStatusInfo = (status) => {
     const statusMap = {
       'agendado': { color: 'bg-blue-100 text-blue-800', text: 'Agendado', icon: 'fa-calendar-check' },
@@ -74,7 +69,6 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Data */}
         <div className="flex items-center">
           <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
             <i className="fas fa-calendar text-green-600"></i>
@@ -87,7 +81,6 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* Horário */}
         <div className="flex items-center">
           <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
             <i className="fas fa-clock text-blue-600"></i>
@@ -98,7 +91,6 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* Local */}
         <div className="flex items-center">
           <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
             <i className="fas fa-map-marker-alt text-purple-600"></i>
@@ -111,8 +103,6 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
           </div>
         </div>
       </div>
-
-      {/* Notificações */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-6">

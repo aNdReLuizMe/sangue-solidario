@@ -58,17 +58,14 @@ const Home = ({ onPageChange }) => {
     }
   };
 
-  // Obter agendamento ativo (apenas 1 por usuário)
   const getActiveAppointment = () => {
     if (!user?.appointments || user.appointments.length === 0) return null;
     
-    // Filtrar apenas agendamentos ativos (não cancelados) e futuros
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Zerar horas para comparação apenas de data
+    today.setHours(0, 0, 0, 0);
     
     const activeAppointments = user.appointments
       .filter(apt => {
-        // Criar data local para evitar problemas de fuso horário
         const [year, month, day] = apt.date.split('-');
         const appointmentDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
         appointmentDate.setHours(0, 0, 0, 0);
