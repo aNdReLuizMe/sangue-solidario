@@ -142,7 +142,6 @@ const Appointment = ({ onPageChange, editingAppointment = null }) => {
           createdAt: new Date().toISOString()
         };
 
-        console.log('Dados do agendamento:', appointment);
         const updatedUser = {
           ...user,
           appointments: [...(user.appointments || []), appointment]

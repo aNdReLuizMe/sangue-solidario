@@ -33,7 +33,6 @@ const Navbar = ({ currentPage, onPageChange }) => {
     setShowMobileMenu(false);
   };
 
-  // Escutar evento personalizado para abrir modal de login
   useEffect(() => {
     const handleOpenLoginModal = () => {
       setShowLoginModal(true);

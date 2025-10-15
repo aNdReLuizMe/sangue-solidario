@@ -92,7 +92,6 @@ body {
     }
   }
 
-  /* Scroll suave para toda a página */
   html {
     scroll-behavior: smooth;
   }

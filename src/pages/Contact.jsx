@@ -12,7 +12,6 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simular envio de mensagem
     setShowSuccessModal(true);
     setFormData({ name: '', email: '', phone: '', message: '' });
   };

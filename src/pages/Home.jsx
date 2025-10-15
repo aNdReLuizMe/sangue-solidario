@@ -19,13 +19,10 @@ const Home = ({ onPageChange }) => {
 
   const handleLoginRedirect = () => {
     setShowLoginModal(false);
-    // Disparar evento personalizado para abrir o modal de login na Navbar
     window.dispatchEvent(new CustomEvent('openLoginModal'));
   };
 
-  // Funções para gerenciar agendamentos
   const handleEditAppointment = (appointment) => {
-    console.log('Editando agendamento:', appointment);
     onPageChange('appointment', appointment);
   };
 
@@ -36,11 +33,7 @@ const Home = ({ onPageChange }) => {
 
   const confirmDeleteAppointment = async () => {
     try {
-      console.log('Excluindo agendamento:', appointmentToDelete);
-      console.log('Agendamentos atuais:', user.appointments);
-      
       const updatedAppointments = user.appointments.filter(apt => apt.id !== appointmentToDelete);
-      console.log('Agendamentos após exclusão:', updatedAppointments);
       
       const updatedUser = {
         ...user,
@@ -50,8 +43,6 @@ const Home = ({ onPageChange }) => {
       await updateUser(updatedUser);
       setShowDeleteModal(false);
       setAppointmentToDelete(null);
-      
-      console.log('Agendamento excluído com sucesso');
     } catch (error) {
       console.error('Erro ao excluir agendamento:', error);
       alert('Erro ao excluir agendamento. Tente novamente.');

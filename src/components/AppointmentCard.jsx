@@ -56,10 +56,7 @@ const AppointmentCard = ({ appointment, onEdit, onDelete }) => {
             <i className="fas fa-edit"></i>
           </button>
           <button
-            onClick={() => {
-              console.log('Clicou para excluir agendamento:', appointment.id);
-              onDelete(appointment.id);
-            }}
+            onClick={() => onDelete(appointment.id)}
             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             title="Excluir agendamento"
           >

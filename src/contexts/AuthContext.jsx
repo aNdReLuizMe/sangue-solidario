@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há usuário logado no localStorage
     const savedUser = localStorage.getItem('sangueVoluntario_user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -25,7 +24,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = (email, password) => {
     return new Promise((resolve, reject) => {
-      // Simular autenticação
       setTimeout(() => {
         const users = JSON.parse(localStorage.getItem('sangueVoluntario_users') || '[]');
         const userFound = users.find(u => u.email === email && u.password === password);
@@ -48,7 +46,6 @@ export const AuthProvider = ({ children }) => {
         try {
           const users = JSON.parse(localStorage.getItem('sangueVoluntario_users') || '[]');
           
-          // Verificar se email já existe
           if (users.find(u => u.email === userData.email)) {
             reject(new Error('Email já cadastrado'));
             return;
@@ -86,7 +83,6 @@ export const AuthProvider = ({ children }) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         try {
-          console.log('Atualizando usuário:', userData);
           const users = JSON.parse(localStorage.getItem('sangueVoluntario_users') || '[]');
           const userIndex = users.findIndex(u => u.id === user.id);
           
@@ -95,7 +91,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('sangueVoluntario_users', JSON.stringify(users));
             
             const { password, ...userWithoutPassword } = users[userIndex];
-            console.log('Usuário atualizado:', userWithoutPassword);
             setUser(userWithoutPassword);
             localStorage.setItem('sangueVoluntario_user', JSON.stringify(userWithoutPassword));
             resolve(userWithoutPassword);

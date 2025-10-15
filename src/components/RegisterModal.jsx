@@ -22,7 +22,6 @@ const RegisterModal = ({ isOpen, onClose, onLoginClick }) => {
     setIsLoading(true);
     setError('');
 
-    // Validações
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem');
       setIsLoading(false);

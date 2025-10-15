@@ -5,7 +5,7 @@ const CustomModal = ({
   onClose, 
   title, 
   message, 
-  type = 'info', // 'info', 'success', 'warning', 'error'
+  type = 'info',
   showCancel = false,
   onConfirm,
   confirmText = 'OK',
