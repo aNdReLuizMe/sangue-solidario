@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pesquisa de satisfação para profissionais</title>
+  <style>
+    :root {
+      --ink: #202124;
+      --muted: #60646c;
+      --line: #d9dadd;
+      --soft: #f5f6f7;
+      --accent: #8b1e2d;
+      --accent-soft: #f8ecee;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #eceff1;
+      color: var(--ink);
+      font: 16px/1.45 Arial, Helvetica, sans-serif;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .secondary {
+      background: #e6e8eb;
+      color: var(--ink);
+    }
+
+    .submit-action {
+      display: flex;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    .submit-action .primary {
+      min-width: 190px;
+      font-size: 16px;
+    }
+
+    .sheet {
+      width: min(920px, calc(100% - 32px));
+      margin: 28px auto;
+      background: #fff;
+      padding: 42px 48px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, .10);
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 10px;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin: 32px 0 12px;
+      padding-bottom: 7px;
+      border-bottom: 2px solid var(--accent);
+      font-size: 19px;
+    }
+
+    .subtitle,
+    .helper {
+      color: var(--muted);
+    }
+
+    .notice {
+      margin: 22px 0;
+      padding: 16px 18px;
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+    }
+
+    .notice strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .consent {
+      margin: 18px 0 28px;
+      padding: 16px;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .consent label {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-weight: 700;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    fieldset {
+      margin: 0 0 16px;
+      padding: 16px 18px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      page-break-inside: avoid;
+    }
+
+    legend {
+      padding: 0 7px;
+      font-weight: 700;
+    }
+
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px 22px;
+      margin-top: 10px;
+    }
+
+    .option {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(90px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .scale label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 62px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #aeb1b7;
+      border-radius: 6px;
+      resize: vertical;
+      font: inherit;
+    }
+
+    .scale-key {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px 18px;
+      margin: 12px 0 22px;
+      padding: 12px 14px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width:760px) {
+      .sheet {
+        width: 100%;
+        margin: 0;
+        padding: 28px 20px;
+        box-shadow: none;
+      }
+
+      .scale {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .scale-key {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        font-size: 11pt;
+      }
+
+      .toolbar {
+        display: none;
+      }
+
+      .sheet {
+        width: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      h1 {
+        font-size: 20pt;
+      }
+
+      h2 {
+        break-after: avoid;
+      }
+
+      fieldset {
+        break-inside: avoid;
+      }
+
+      textarea {
+        min-height: 54px;
+      }
+
+      .notice,
+      .consent,
+      .scale-key {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="toolbar" aria-label="Ações do formulário">
+    <button class="primary" type="button" onclick="window.print()">Imprimir ou salvar em PDF</button>
+    <button class="secondary" type="button" onclick="document.getElementById('survey').reset()">Limpar
+      marcações</button>
+  </div>
+
+  <main class="sheet">
+    <h1>Pesquisa de satisfação da plataforma Sangue Solidário</h1>
+    <p class="subtitle">Formulário destinado a profissionais que avaliem os recursos administrativos da plataforma.</p>
+
+    <div class="notice">
+      <strong>Pesquisa anônima</strong>
+      Não informe nome, assinatura, telefone, e-mail, CPF, endereço, informações de saúde ou qualquer outro dado que
+      permita sua identificação.
+    </div>
+
+    <form id="survey">
+      <div class="consent">
+        <label>
+          <input type="checkbox" required>
+          <span>Declaro que fui informado(a) de que esta pesquisa é anônima, voluntária e não exige identificação.
+            Entendo que devo evitar dados pessoais ou sensíveis nos campos de resposta aberta, mas me comprometo a
+            responder de maneira sincera.</span>
+        </label>
+      </div>
+
+      <h2>Caracterização não identificável</h2>
+      <fieldset>
+        <legend>Área geral de atuação</legend>
+        <div class="options">
+          <label class="option"><input type="radio" name="area"> Atendimento</label>
+          <label class="option"><input type="radio" name="area"> Gestão administrativa</label>
+          <label class="option"><input type="radio" name="area"> Tecnologia da informação</label>
+          <label class="option"><input type="radio" name="area"> Estoque e logística</label>
+          <label class="option"><input type="radio" name="area"> Comunicação e campanhas</label>
+          <label class="option"><input type="radio" name="area"> Prefiro não informar</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Experiência com a plataforma</legend>
+        <div class="options">
+          <label class="option"><input type="radio" name="tempo"> Primeiro contato</label>
+          <label class="option"><input type="radio" name="tempo"> Menos de um mês</label>
+          <label class="option"><input type="radio" name="tempo"> Entre um e três meses</label>
+          <label class="option"><input type="radio" name="tempo"> Mais de três meses</label>
+        </div>
+      </fieldset>
+
+      <h2>Avaliação</h2>
+      <p class="helper">Marque uma alternativa em cada questão.</p>
+      <div class="scale-key"><span>1 — Muito insatisfeito</span><span>2 — Insatisfeito</span><span>3 —
+          Neutro</span><span>4 — Satisfeito</span><span>5 — Muito satisfeito</span><span>N/A — Não se aplica</span>
+      </div>
+
+      <div id="questions">
+        <fieldset>
+          <legend>1. Facilidade para aprender a utilizar a plataforma</legend>
+          <div class="scale"><label><input type="radio" name="q1" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q1"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q1"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q1"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q1"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q1" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>2. Clareza dos menus, botões e mensagens</legend>
+          <div class="scale"><label><input type="radio" name="q2" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q2"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q2"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q2"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q2"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q2" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>3. Facilidade para localizar cadastros e agendamentos</legend>
+          <div class="scale"><label><input type="radio" name="q3" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q3"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q3"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q3"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q3"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q3" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>4. Utilidade do painel administrativo</legend>
+          <div class="scale"><label><input type="radio" name="q4" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q4"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q4"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q4"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q4"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q4" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>5. Clareza das informações sobre os níveis de estoque</legend>
+          <div class="scale"><label><input type="radio" name="q5" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q5"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q5"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q5"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q5"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q5" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>6. Facilidade para criar e acompanhar campanhas</legend>
+          <div class="scale"><label><input type="radio" name="q6" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q6"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q6"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q6"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q6"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q6" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>7. Utilidade do sistema de notificações</legend>
+          <div class="scale"><label><input type="radio" name="q7" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q7"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q7"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q7"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q7"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q7" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>8. Clareza dos relatórios e indicadores apresentados</legend>
+          <div class="scale"><label><input type="radio" name="q8" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q8"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q8"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q8"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q8"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q8" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>9. Velocidade de resposta da plataforma</legend>
+          <div class="scale"><label><input type="radio" name="q9" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q9"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q9"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q9"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q9"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q9" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>10. Compatibilidade com as atividades de trabalho</legend>
+          <div class="scale"><label><input type="radio" name="q10" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q10"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q10"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q10"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q10"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q10" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>11. Percepção de segurança e controle de acesso</legend>
+          <div class="scale"><label><input type="radio" name="q11" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q11"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q11"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q11"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q11"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q11" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+        <fieldset>
+          <legend>12. Satisfação geral com a plataforma</legend>
+          <div class="scale"><label><input type="radio" name="q12" value="1"><span><strong>1</strong><br>Muito
+                insatisfeito</span></label><label><input type="radio" name="q12"
+                value="2"><span><strong>2</strong><br>Insatisfeito</span></label><label><input type="radio" name="q12"
+                value="3"><span><strong>3</strong><br>Neutro</span></label><label><input type="radio" name="q12"
+                value="4"><span><strong>4</strong><br>Satisfeito</span></label><label><input type="radio" name="q12"
+                value="5"><span><strong>5</strong><br>Muito satisfeito</span></label><label><input type="radio"
+                name="q12" value="N/A"><span><strong>N/A</strong><br>Não se aplica</span></label></div>
+        </fieldset>
+      </div>
+
+      <h2>Questões complementares</h2>
+      <fieldset>
+        <legend>13. Qual funcionalidade foi mais útil?</legend><textarea
+          aria-label="Funcionalidade mais útil"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>14. Qual foi a principal dificuldade encontrada?</legend><textarea
+          aria-label="Principal dificuldade"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>15. Que melhoria deveria ser priorizada?</legend><textarea aria-label="Melhoria prioritária"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>16. A plataforma contribui para organizar as atividades administrativas?</legend>
+        <div class="options"><label class="option"><input type="radio" name="organiza"> Sim</label><label
+            class="option"><input type="radio" name="organiza"> Parcialmente</label><label class="option"><input
+              type="radio" name="organiza"> Não</label><label class="option"><input type="radio" name="organiza"> Não
+            foi possível avaliar</label></div>
+        <textarea aria-label="Justificativa sobre organização"
+          placeholder="Justificativa opcional — não inclua dados pessoais"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>17. Você utilizaria a plataforma nas atividades rotineiras?</legend>
+        <div class="options"><label class="option"><input type="radio" name="rotina"> Sim</label><label
+            class="option"><input type="radio" name="rotina"> Talvez, após ajustes</label><label class="option"><input
+              type="radio" name="rotina"> Não</label><label class="option"><input type="radio" name="rotina"> Não foi
+            possível avaliar</label></div>
+      </fieldset>
+      <fieldset>
+        <legend>18. Recomendação sobre a versão avaliada</legend>
+        <div class="options"><label class="option"><input type="radio" name="recomendacao"> Continuar os
+            testes</label><label class="option"><input type="radio" name="recomendacao"> Continuar após
+            ajustes</label><label class="option"><input type="radio" name="recomendacao"> Realizar nova
+            avaliação</label><label class="option"><input type="radio" name="recomendacao"> Não continuar nesta
+            versão</label></div>
+      </fieldset>
+      <fieldset>
+        <legend>19. Observações finais</legend><textarea aria-label="Observações finais"></textarea>
+      </fieldset>
+    </form>
+    <div class="submit-action">
+      <button class="primary" type="button">Enviar formulário</button>
+    </div>
+  </main>
+
+  <script>
+    const questions = [
+      'Facilidade para aprender a utilizar a plataforma',
+      'Clareza dos menus, botões e mensagens',
+      'Facilidade para localizar cadastros e agendamentos',
+      'Utilidade do painel administrativo',
+      'Clareza das informações sobre os níveis de estoque',
+      'Facilidade para criar e acompanhar campanhas',
+      'Utilidade do sistema de notificações',
+      'Clareza dos relatórios e indicadores apresentados',
+      'Velocidade de resposta da plataforma',
+      'Compatibilidade com as atividades de trabalho',
+      'Percepção de segurança e controle de acesso',
+      'Satisfação geral com a plataforma'
+    ];
+    const scale = [['1', 'Muito insatisfeito'], ['2', 'Insatisfeito'], ['3', 'Neutro'], ['4', 'Satisfeito'], ['5', 'Muito satisfeito'], ['N/A', 'Não se aplica']];
+    document.getElementById('questions').innerHTML = questions.map((q, i) => `<fieldset><legend>${i + 1}. ${q}</legend><div class="scale">${scale.map(([v, t]) => `<label><input type="radio" name="q${i + 1}" value="${v}"><span><strong>${v}</strong><br>${t}</span></label>`).join('')}</div></fieldset>`).join('');
+  </script>
+</body>
+
+</html>

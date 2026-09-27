@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const RegisterModal = ({ isOpen, onClose, onLoginClick }) => {
   const [formData, setFormData] = useState({
@@ -22,13 +22,15 @@ const RegisterModal = ({ isOpen, onClose, onLoginClick }) => {
     setIsLoading(true);
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
+    const { confirmPassword, ...userData } = formData;
+
+    if (userData.password !== confirmPassword) {
       setError('As senhas não coincidem');
       setIsLoading(false);
       return;
     }
 
-    if (formData.password.length < 6) {
+    if (userData.password.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres');
       setIsLoading(false);
       return;
@@ -41,7 +43,6 @@ const RegisterModal = ({ isOpen, onClose, onLoginClick }) => {
     }
 
     try {
-      const { confirmPassword, ...userData } = formData;
       await register(userData);
       onClose();
     } catch (err) {

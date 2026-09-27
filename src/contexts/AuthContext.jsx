@@ -1,14 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import AuthContext from './AuthContextDefinition';
 
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
-  return context;
-};
+const withoutPassword = (userData) => Object.fromEntries(
+  Object.entries(userData).filter(([key]) => key !== 'password')
+);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -29,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         const userFound = users.find(u => u.email === email && u.password === password);
         
         if (userFound) {
-          const { password, ...userWithoutPassword } = userFound;
+          const userWithoutPassword = withoutPassword(userFound);
           setUser(userWithoutPassword);
           localStorage.setItem('sangueVoluntario_user', JSON.stringify(userWithoutPassword));
           resolve(userWithoutPassword);
@@ -62,7 +57,7 @@ export const AuthProvider = ({ children }) => {
           users.push(newUser);
           localStorage.setItem('sangueVoluntario_users', JSON.stringify(users));
           
-          const { password, ...userWithoutPassword } = newUser;
+          const userWithoutPassword = withoutPassword(newUser);
           setUser(userWithoutPassword);
           localStorage.setItem('sangueVoluntario_user', JSON.stringify(userWithoutPassword));
           
@@ -90,7 +85,7 @@ export const AuthProvider = ({ children }) => {
             users[userIndex] = { ...users[userIndex], ...userData };
             localStorage.setItem('sangueVoluntario_users', JSON.stringify(users));
             
-            const { password, ...userWithoutPassword } = users[userIndex];
+            const userWithoutPassword = withoutPassword(users[userIndex]);
             setUser(userWithoutPassword);
             localStorage.setItem('sangueVoluntario_user', JSON.stringify(userWithoutPassword));
             resolve(userWithoutPassword);

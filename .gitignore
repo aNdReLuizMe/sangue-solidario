@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
 
 # Editor directories and files
 .vscode/*
@@ -25,3 +26,12 @@ dist-ssr
 
 # Windows Zone.Identifier files
 *:Zone.Identifier
+
+# Contexto local dos agentes
+/AGENTS.md
+/RTK.md
+/docs/
+
+# Configurações locais das ferramentas
+/.codex/
+/.serena/
